@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     SiteAdapter adapter;
     Handler handler = new Handler();
 
+    int add = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
         adapter = new SiteAdapter(sites, this);
         listView.setAdapter(adapter);
 
-        sites.add(new Site("네이버" ,"https://www.naver.com"));
         adapter.notifyDataSetChanged();
 
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -173,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "즐겨찾기 추가");
         menu.add(111, 2, 0, "즐겨찾기 목록");
-        //return super.onCreateOptionsMenu(menu);
-
         return true;
     }
 
@@ -217,16 +216,23 @@ public class MainActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    String msg = "즐겨찾기에 추가되었습니다";
                     for (int i = 0; i < sites.size(); i++) {
-                        String one = sites.get(i).getUrl();
-                        if (one.equals(url)) {
-                            webView.loadUrl("javascript:displayMsg()");
+                        String one = sites.get(i).getUrl().toString();
+                        if (one.contains(url.toString())) {
+                            add = 0;
+                            break;
                         } else {
-                            webView.loadUrl("javascript:setMsg(즐겨찾기에 추가되었습니다)");
-                            sites.add(new Site(name, url));
-                            adapter.notifyDataSetChanged();
+                            add = 1;
                         }
+                    }
+                    if (add == 0) {
+                        webView.loadUrl("javascript:displayMsg()");
+                        add = 0;
+                    } else if (add == 1) {
+                        webView.loadUrl("javascript:setMsg('즐겨찾기에 추가되었습니다')");
+                        sites.add(new Site(name, url));
+                        adapter.notifyDataSetChanged();
+                        add = 0;
                     }
                 }
             });
